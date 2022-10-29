@@ -35,7 +35,9 @@ public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 
 	@Override
 	public void update(ProgrammingLanguage programmingLanguage) {
-		languageRepository.update(programmingLanguage);
+		if (isLanguageNameEmpty(programmingLanguage) && isLanguageAlreadyExist(programmingLanguage)) {
+			languageRepository.update(programmingLanguage);
+		}
 
 	}
 
