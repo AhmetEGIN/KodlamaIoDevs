@@ -9,7 +9,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageService;
-import kodlama.io.Kodlama.io.Devs.entities.concretes.ProgrammingLanguage;
+import kodlama.io.Kodlama.io.Devs.business.requests.programmingLanguage.CreateProgrammingLanguageRequest;
+import kodlama.io.Kodlama.io.Devs.business.requests.programmingLanguage.DeleteProgrammingLanguageRequest;
+import kodlama.io.Kodlama.io.Devs.business.requests.programmingLanguage.UpdateProgrammingLanguageRequest;
+import kodlama.io.Kodlama.io.Devs.business.responses.programmingLanguage.GetAllProgrammingLanguagesResponse;
+import kodlama.io.Kodlama.io.Devs.business.responses.programmingLanguage.GetByIdProgrammingLanguageResponse;
 
 @RestController
 @RequestMapping("/api/programminglanguage")
@@ -23,27 +27,27 @@ public class ProgrammingLanguagesController {
 	}
 	
 	@PostMapping("/add")
-	public void add(ProgrammingLanguage programmingLanguage) {
+	public void add(CreateProgrammingLanguageRequest programmingLanguage) {
 		programmingLanguageService.add(programmingLanguage);
 	}
 	
-	@PostMapping("delete")
-	public void delete(ProgrammingLanguage programmingLanguage) {
+	@PostMapping("/delete")
+	public void delete(DeleteProgrammingLanguageRequest programmingLanguage) {
 		programmingLanguageService.delete(programmingLanguage);
 	}
 	
 	@PostMapping("/update")
-	public void update(ProgrammingLanguage programmingLanguage) {
+	public void update(UpdateProgrammingLanguageRequest programmingLanguage) {
 		programmingLanguageService.update(programmingLanguage);
 	}
 	
 	@GetMapping("/getall")
-	public List<ProgrammingLanguage> getAll(){
+	public List<GetAllProgrammingLanguagesResponse> getAll(){
 		return programmingLanguageService.getAll();
 	}
 	
 	@PostMapping("/getbyid")
-	public ProgrammingLanguage getById(int id) {
+	public GetByIdProgrammingLanguageResponse getById(int id) {
 		return programmingLanguageService.getById(id);
 	}
 	

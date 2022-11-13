@@ -2,10 +2,17 @@ package kodlama.io.Kodlama.io.Devs.business.concretes;
 
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kodlama.io.Kodlama.io.Devs.business.abstracts.ProgrammingLanguageService;
+import kodlama.io.Kodlama.io.Devs.business.requests.programmingLanguage.CreateProgrammingLanguageRequest;
+import kodlama.io.Kodlama.io.Devs.business.requests.programmingLanguage.DeleteProgrammingLanguageRequest;
+import kodlama.io.Kodlama.io.Devs.business.requests.programmingLanguage.UpdateProgrammingLanguageRequest;
+import kodlama.io.Kodlama.io.Devs.business.responses.programmingLanguage.GetAllProgrammingLanguagesResponse;
+import kodlama.io.Kodlama.io.Devs.business.responses.programmingLanguage.GetByIdProgrammingLanguageResponse;
 import kodlama.io.Kodlama.io.Devs.dataAccess.abstracts.ProgrammingLanguageRepository;
 import kodlama.io.Kodlama.io.Devs.entities.concretes.ProgrammingLanguage;
 
@@ -13,62 +20,75 @@ import kodlama.io.Kodlama.io.Devs.entities.concretes.ProgrammingLanguage;
 public class ProgrammingLanguageManager implements ProgrammingLanguageService {
 
 	private ProgrammingLanguageRepository languageRepository;
+	private ModelMapper modelMapper;
 
 	@Autowired
-	public ProgrammingLanguageManager(ProgrammingLanguageRepository languageRepository) {
+	public ProgrammingLanguageManager(ProgrammingLanguageRepository languageRepository, ModelMapper modelMapper) {
 		this.languageRepository = languageRepository;
+		this.modelMapper = modelMapper;
 	}
 
 	@Override
-	public void add(ProgrammingLanguage programmingLanguage) {
-		if (isLanguageNameEmpty(programmingLanguage) && isLanguageAlreadyExist(programmingLanguage)) {
-			languageRepository.add(programmingLanguage);
+	public void add(CreateProgrammingLanguageRequest createProgrammingLanguageRequest) {
+		if (isLanguageAlreadyExist(createProgrammingLanguageRequest.getName())
+				&& isLanguageNameEmpty(createProgrammingLanguageRequest.getName())) {
+			ProgrammingLanguage programmingLanguage = modelMapper.map(createProgrammingLanguageRequest,
+					ProgrammingLanguage.class);
+			languageRepository.save(programmingLanguage);
 		}
-		
 	}
 
 	@Override
-	public void delete(ProgrammingLanguage programmingLanguage) {
+	public void delete(DeleteProgrammingLanguageRequest deleteProgrammingLanguage) {
+		ProgrammingLanguage programmingLanguage = languageRepository.getReferenceById(deleteProgrammingLanguage.getId());
 		languageRepository.delete(programmingLanguage);
-
 	}
 
 	@Override
-	public void update(ProgrammingLanguage programmingLanguage) {
-		if (isLanguageNameEmpty(programmingLanguage) && isLanguageAlreadyExist(programmingLanguage)) {
-			languageRepository.update(programmingLanguage);
+	public void update(UpdateProgrammingLanguageRequest updateProgrammingLanguage) {
+		if (isLanguageNameEmpty(updateProgrammingLanguage.getName())
+				&& isLanguageAlreadyExist(updateProgrammingLanguage.getName())) {
+			ProgrammingLanguage programmingLanguage = modelMapper.map(updateProgrammingLanguage, ProgrammingLanguage.class);
+			languageRepository.save(programmingLanguage);
+
 		}
-
 	}
 
 	@Override
-	public List<ProgrammingLanguage> getAll() {
-		return languageRepository.getAll();
+	public List<GetAllProgrammingLanguagesResponse> getAll() {
+//		List<GetAllProgrammingLanguagesResponse> getAllProgrammingLanguagesResponses = new ArrayList<GetAllProgrammingLanguagesResponse>();
+//		for (ProgrammingLanguage programmingLanguage: languageRepository.findAll()) {
+//			getAllProgrammingLanguagesResponses.add(new GetAllProgrammingLanguagesResponse(programmingLanguage.getId(), programmingLanguage.getName(), programmingLanguage.getTechnologies()));
+//		}
+//		return getAllProgrammingLanguagesResponses;
+		return modelMapper.map(languageRepository.findAll(), new TypeToken<List<GetAllProgrammingLanguagesResponse>>() {
+		}.getType());
 	}
 
 	@Override
-	public ProgrammingLanguage getById(int id) {
-		return languageRepository.getById(id);
+	public GetByIdProgrammingLanguageResponse getById(int id) {
+		ProgrammingLanguage programmingLanguage = languageRepository.getReferenceById(id);
+
+		return modelMapper.map(programmingLanguage, GetByIdProgrammingLanguageResponse.class);
 	}
 
 	// business codes - private codes
-	private boolean isLanguageNameEmpty(ProgrammingLanguage programmingLanguage) {
-		if (programmingLanguage.getName().isEmpty()) {
+	private boolean isLanguageNameEmpty(String name) {
+		if (name.isEmpty()) {
 			System.out.println("Dil adı boş geçilemez");
 			return false;
 		} else {
 			return true;
 		}
 	}
-	
-	private boolean isLanguageAlreadyExist(ProgrammingLanguage programmingLanguage) {
-		for (ProgrammingLanguage language : languageRepository.getAll()) {
-			if (language.getName().equals(programmingLanguage.getName())) {
-				System.out.println("Aynı isimde bir dil zaten mevcut");
-				return false;
-			}
+
+	private boolean isLanguageAlreadyExist(String name) {
+		
+		if (languageRepository.getByName(name)== null) {
+			return true;
 		}
-		return true;
+		return false;
+
 	}
 
 }
